@@ -1,13 +1,12 @@
 name: CI/CD Pipeline
 
-# Define the events that will trigger this workflow
 on:
   push:
     branches:
-      - main  # Triggers when code is pushed to the 'main' branch
+      - main
   pull_request:
     branches:
-      - main  # Triggers when a pull request targets the 'main' branch
+      - main
 
 jobs:
   # Job for testing
@@ -62,9 +61,10 @@ jobs:
           docker push my-app:${{ github.sha }}
 
       - name: Set up kubectl
-        uses: actions/setup-kubectl@v3
+        uses: Azure/setup-kubectl@v1  # Corrected action for setting up kubectl
         with:
-          kubeconfig: ${{ secrets.KUBECONFIG }} # You must add this secret to GitHub Secrets
+          version: '1.21.0'  # Specify the kubectl version you need
+          kubeconfig: ${{ secrets.KUBECONFIG }}  # Ensure this secret is set up in GitHub Secrets
 
       - name: Deploy to Kubernetes
         run: |
