@@ -1,14 +1,16 @@
- name: CI/CD Pipeline
+name: CI/CD Pipeline
 
+# Define the events that will trigger this workflow
 on:
   push:
     branches:
-      - main
+      - main  # Triggers when code is pushed to the 'main' branch
   pull_request:
     branches:
-      - main
+      - main  # Triggers when a pull request targets the 'main' branch
 
 jobs:
+  # Job for testing
   test:
     runs-on: ubuntu-latest
 
@@ -29,7 +31,6 @@ jobs:
 
       - name: Run tests
         run: npx jest
-
 
   # Job for building Docker image and deploying to Kubernetes
   deploy:
@@ -55,11 +56,11 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t my-app:${{ github.sha }} .
-      
+
       - name: Push Docker image to DockerHub
         run: |
           docker push my-app:${{ github.sha }}
-      
+
       - name: Set up kubectl
         uses: actions/setup-kubectl@v3
         with:
@@ -76,4 +77,16 @@ jobs:
           # This will depend on your Kubernetes setup
           # Fetch the URL of the deployed service (adjust based on your setup)
           kubectl get svc my-app-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' > deployment-url.txt
-          echo "::
+          echo "::set-output name=deployment-url::$(cat deployment-url.txt)"
+
+  # Job for sending Slack notifications
+  notify:
+    runs-on: ubuntu-latest
+    needs: deploy  # This ensures the notify job only runs if the deploy job succeeds
+    steps:
+      - name: Send notification to Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }} # It will send success or failure status
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK }} # Add this secret to GitHub Secrets
+          text: "Deployment to Kubernetes has finished. Check the deployment: ${{ needs.deploy.outputs.deployment-url }}"
