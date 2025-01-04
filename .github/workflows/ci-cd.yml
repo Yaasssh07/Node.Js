@@ -63,14 +63,17 @@ jobs:
       - name: Push Docker Image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/node.js:latest
 
+     
       - name: Set up kubectl
-        uses: Azure/setup-kubectl@v1  
+        uses: azure/setup-kubectl@v3
         with:
-          version: '1.21.0'  
-          kubeconfig: ${{ secrets.KUBECONFIG }}  
-          
+          version: 'v1.26.0' # Adjust version as per your Kubernetes cluster version
+
+      
       - name: Deploy to Kubernetes
         run: |
+          echo "${{ secrets.KUBECONFIG_JSON }}" > kubeconfig
+          export KUBECONFIG=kubeconfig
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
 
