@@ -64,18 +64,18 @@ jobs:
         run: docker push ${{ secrets.DOCKER_USERNAME }}/node.js:latest
 
      
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'v1.26.0' # Adjust version as per your Kubernetes cluster version
+            # Step 5: Set up kubectl
+      - name: Create kubeconfig file
+        run: |
+          echo "${{ secrets.KUBECONFIG_JSON }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
 
-      
+      # Step 6: Apply Kubernetes manifests
       - name: Deploy to Kubernetes
         run: |
-          echo "${{ secrets.KUBECONFIG_JSON }}" > kubeconfig
-          export KUBECONFIG=kubeconfig
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
+
 
       - name: Get deployment URL
         id: deploy
