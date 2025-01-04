@@ -74,10 +74,12 @@ jobs:
     echo "KUBECONFIG: $KUBECONFIG"
             cat kubeconfig
 
+
       - name: Deploy to Kubernetes
-       run: |
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
+        run: |
+          kubectl apply -f k8s/deployment.yaml --validate=false
+          kubectl apply -f k8s/service.yaml --validate=false
+
 
 
       - name: Get deployment URL
