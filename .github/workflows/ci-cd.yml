@@ -69,10 +69,13 @@ jobs:
         run: |
           echo "${{ secrets.KUBECONFIG_JSON }}" | base64 -d > kubeconfig
           export KUBECONFIG=kubeconfig
+          - name: Debug kubeconfig
+            run: |
+    echo "KUBECONFIG: $KUBECONFIG"
+            cat kubeconfig
 
-      # Step 6: Apply Kubernetes manifests
       - name: Deploy to Kubernetes
-        run: |
+       run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
 
