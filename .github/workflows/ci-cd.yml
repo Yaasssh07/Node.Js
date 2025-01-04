@@ -54,11 +54,11 @@ jobs:
   
       - name: Build Docker image
         run: |
-          docker build -t Node.js:${{ github.sha }} .
+          docker build -t node.js:${{ github.sha }} .
 
       - name: Push Docker image to DockerHub
         run: |
-          docker push yaaasssh/Node.js:latest
+          docker push yaaasssh/node.js:latest
 
       - name: Set up kubectl
         uses: Azure/setup-kubectl@v1  
